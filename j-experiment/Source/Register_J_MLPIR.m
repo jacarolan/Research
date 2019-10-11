@@ -18,7 +18,7 @@ viewImage(dataR,omega,m,'title','Template');
 dataT = imrotate(dataR, 60, 'bicubic', 'crop');
 viewImage('reset','viewImage','viewImage2D','colormap','gray(256)','axis','off');
 subplot(1,2,2);
-viewImage(dataT, omega, m, 'title', 'Rotated 120 degrees');
+viewImage(dataT, omega, m, 'title', 'Rotated 60 degrees');
 
 ML = getMultilevel({dataT,dataR},omega,m,'fig',2);
 % % % % % % % % % % Data Loaded % % % % % % % % % % % 
