@@ -1,6 +1,7 @@
 % Basic Registration Test
 % Loads an image of a J, takes it as the reference image.
 % Rotates the image, registers the rotated image to reference J
+% Uses an elastic regularizer
 
 dataR = -flipud(double(imread('J.png'))) + 255; %Finagle the J to look right, have 0 as background
 dataR = transpose(dataR(:, :, 1)); %Image is black and white, just use the first dimension
@@ -22,25 +23,13 @@ viewImage(dataT, omega, m, 'title', 'Rotated 60 degrees');
 ML = getMultilevel({dataT,dataR},omega,m,'fig',2);
 % % % % % % % % % % Data Loaded % % % % % % % % % % % 
 
-% Register image with affine linear transformations
-imgModel('reset','imgModel','splineInter','regularizer','moments','theta',1e-1);
-level = 5; omega = ML{level}.omega; m = ML{level}.m;
-[T,R] = imgModel('coefficients',ML{level}.T,ML{level}.R,omega,'out',0);
+
+
+imgModel('reset','imgModel','splineInter','regularizer','moments','theta',1e-2);
 distance('reset','distance','SSD');
-center = (omega(2:2:end)-omega(1:2:end))'/2;
-trafo('reset','trafo','affine2D'); 
-w0 = trafo('w0'); beta = 0; M =[]; wRef = []; % disable regularization
+trafo('reset','trafo','affine2D');
+regularizer('reset','regularizer','mfElastic','alpha',5e2,'mu',1,'lambda',0);
 
-% initialize plots
-FAIRplots('reset','mode','PIR-GN','fig',1);
-FAIRplots('init',struct('Tc',T,'Rc',R,'omega',omega,'m',m)); 
-
-xc = getCellCenteredGrid(omega,m); 
-Rc = imgModel(R,omega,xc);
-fctn = @(wc) PIRobjFctn(T,Rc,omega,m,beta,M,wRef,xc,wc);
-
-% optimize
-[wc,his] = GaussNewton(fctn,w0,'Plots',@FAIRplots,'solver','backslash','maxIter',10);
+% run MLIR
+[yc,wc,his] = MLIR(ML,'maxLevel',6);
 %==============================================================================
-
-
