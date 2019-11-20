@@ -15,7 +15,7 @@ viewImage('reset','viewImage','viewImage2D','colormap','gray(256)','axis','off')
 subplot(1,2,1);
 % view raw data
 viewImage(dataR,omega,m,'title','Template');
-dataT = imrotate(dataR, 120, 'bicubic', 'crop');
+dataT = imrotate(dataR, 60, 'bicubic', 'crop');
 viewImage('reset','viewImage','viewImage2D','colormap','gray(256)','axis','off');
 subplot(1,2,2);
 viewImage(dataT, omega, m, 'title', 'Rotated 60 degrees');

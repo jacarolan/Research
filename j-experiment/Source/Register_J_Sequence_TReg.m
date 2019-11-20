@@ -6,9 +6,9 @@
 n = 5;
 
 dataR = -flipud(double(imread('J.png'))) + 255; %Finagle the J to look right, have 0 as background
-dataR = transpose(dataR(:, :, 1)); %Image is black and white, just use the first dimension
-m = [size(dataR), n]; %The dimensions of our input space
-omega = [0, m(1)/ n, 0, m(2)/ n, 0, m(3)/ n]; %The lower/upper bounds on input by dimension
+dataR = transpose(dataR(:, :, 1)); %Image is black and whit_sparsee, just use the first dimension
+m = [n, size(dataR)]; %The dimensions of our input space
+omega = [0, m(1), 0, m(2), 0, m(3)]; %The lower/upper bounds on input by dimension
 disp(m); %print Image dimensions
 
 % setup image viewer
@@ -21,7 +21,7 @@ subplot(2,3,1);
 dataTs = zeros(m(1), m(2), m(3));
 for i = 1:n
     next = imrotate(dataR, 60 * i, 'bicubic', 'crop');
-    dataTs(:, :, i) = next;
+    dataTs(i, :, :) = next;
     viewImage('reset','viewImage','viewImage2D','colormap','gray(256)','axis','off');
     subplot(2,3,i+1);
 %     dataT = dataTs(:, :, i);
@@ -35,12 +35,23 @@ dataRs = cat(3, dataR, dataR, dataR, dataR, dataR);
 dataR = dataRs;
 dataT = dataTs;
 
+% save('J_seq.mat', 'omega', 'm', 'dataT', 'dataR')
+
 % Set regularization parameters
-ML = getMultilevel({dataTs,dataRs},omega,m,'fig',2);
+[viewer,viewPara] = viewImage('reset','viewImage','imgmontage',...
+  'colormap','gray(256)','direction','-zyx');
+
+FAIRfigure(1); clf;
+% subplot(1,2,1); viewImage(dataT,omega,m);
+% subplot(1,2,2); viewImage(dataR,omega,m);
+
+ML = getMultilevel({dataT,dataR},omega,m,'fig',2);
+
 imgPara  = {'imgModel','splineInterMex'};
 traPara  = {'trafo','affine3Dsparse'};
 disPara  = {'distance','SSD'};
 regPara  = {'regularizer','mfElastic','alpha',1e3,'mu',1,'lambda',0};
+
 
 
 % prepare the plot
